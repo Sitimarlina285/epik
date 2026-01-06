@@ -26,11 +26,13 @@ export default buildConfig({
 
   cors: [
     "http://localhost:3000",
+    "https://epik-rho.vercel.app",
     process.env.NEXT_PUBLIC_SERVER_URL || "",
   ].filter(Boolean),
 
   csrf: [
     "http://localhost:3000",
+    "https://epik-rho.vercel.app",
     process.env.NEXT_PUBLIC_SERVER_URL || "",
   ].filter(Boolean),
 
