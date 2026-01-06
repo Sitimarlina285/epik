@@ -11,8 +11,6 @@ const MENU_ITEMS = [
   { label: "About", href: "/#about" },
   { label: "Recognition", href: "/#recognition" },
   { label: "Works", href: "/#works" },
-  { label: "Partners", href: "/#partners" },
-  //{ label: 'Articles', href: '/#articles' },
   { label: "Contact", href: "/#contact" },
 ];
 

@@ -75,10 +75,6 @@ export const Works: CollectionConfig = {
       admin: {
         description: "Upload a new image or select from existing media",
       },
-      // Ini akan otomatis menampilkan opsi:
-      // 1. "Upload New" - untuk upload gambar baru
-      // 2. "Select" - untuk pilih dari media yang sudah ada
-      // 3. "Remove" - untuk hapus pilihan
     },
     {
       name: "social_links",

@@ -43,12 +43,5 @@ export const SocialLinks: CollectionConfig = {
         placeholder: "https://...",
       },
     },
-    {
-      name: "icon",
-      type: "text",
-      admin: {
-        description: "Icon name or URL (optional)",
-      },
-    },
   ],
 };
