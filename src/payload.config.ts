@@ -1,8 +1,9 @@
 import { buildConfig } from "payload";
 import path from "path";
+import { fileURLToPath } from "url";
 import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
-import { vercelBlobStorage } from "@payloadcms/storage-vercel-blob"; // ← Ganti import
+import { vercelBlobStorage } from "@payloadcms/storage-vercel-blob";
 
 // Collections
 import { Users } from "./collections/Users";
@@ -12,6 +13,9 @@ import { SocialLinks } from "./collections/SocialLinks";
 
 // Globals
 import { Recognition } from "./globals/Recognition";
+
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
 
 export default buildConfig({
   secret: process.env.PAYLOAD_SECRET!,
@@ -37,19 +41,18 @@ export default buildConfig({
   editor: lexicalEditor({}),
 
   typescript: {
-    outputFile: path.resolve(__dirname, "payload-types.ts"),
+    outputFile: path.resolve(dirname, "payload-types.ts"), // ← GANTI __dirname dengan dirname
   },
 
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000",
 
-  // ✅ Plugin Vercel Blob Storage
   plugins: [
     vercelBlobStorage({
-      enabled: true, // Optional - default true
+      enabled: true,
       collections: {
-        media: true, // Enable untuk collection media
+        media: true,
       },
-      token: process.env.BLOB_READ_WRITE_TOKEN || "", // Auto-provided oleh Vercel
+      token: process.env.BLOB_READ_WRITE_TOKEN || "",
     }),
   ],
 });
