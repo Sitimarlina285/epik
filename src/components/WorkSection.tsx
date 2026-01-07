@@ -16,6 +16,9 @@ import { Solway, Courier_Prime } from "next/font/google";
 const solway = Solway({ subsets: ["latin"], weight: ["400", "700"] });
 const courier = Courier_Prime({ subsets: ["latin"], weight: ["400"] });
 
+/* =======================
+   TYPES
+======================= */
 interface SocialLink {
   id: string;
   type: string;
@@ -38,14 +41,14 @@ interface WorksSectionProps {
 }
 
 /* =======================
-   MEDIA
+   MEDIA (BLOB READY)
 ======================= */
 function WorkMedia({ work }: { work: Work }) {
   const isVideo = (url: string) => /\.(mp4|webm|ogg)$/i.test(url);
 
   return (
     <motion.div
-      initial={{ opacity: 0.6, scale: 0.9 }}
+      initial={{ opacity: 0.6, scale: 0.92 }}
       whileInView={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.6 }}
       viewport={{ amount: 0.4 }}
@@ -80,7 +83,7 @@ function WorkMedia({ work }: { work: Work }) {
 }
 
 /* =======================
-   MAIN
+   MAIN SECTION
 ======================= */
 export default function WorksSection({ works }: WorksSectionProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -95,19 +98,20 @@ export default function WorksSection({ works }: WorksSectionProps) {
         1,
         Math.max(0, -rect.top / (rect.height - window.innerHeight))
       );
-      setActiveIndex(
-        Math.min(Math.floor(progress * works.length), works.length - 1)
-      );
+
+      const index = Math.floor(progress * works.length);
+      setActiveIndex(Math.min(index, works.length - 1));
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
+
     return () => window.removeEventListener("scroll", onScroll);
   }, [works.length]);
 
   if (!works.length) return null;
 
-  const activeWork = works[activeIndex] || works[0];
+  const activeWork = works[activeIndex];
 
   const icon = (type: string): React.ReactNode => {
     const icons: Record<string, React.ReactNode> = {
@@ -126,7 +130,7 @@ export default function WorksSection({ works }: WorksSectionProps) {
       className="w-full min-h-[300vh] bg-black text-white"
     >
       {/* TITLE */}
-      <div className="pt-16 pb-12 text-center">
+      <div className="pt-16 pb-14 text-center">
         <h1 className={`${solway.className} text-4xl font-bold`}>Our Works</h1>
       </div>
 
@@ -134,8 +138,10 @@ export default function WorksSection({ works }: WorksSectionProps) {
       <div className="grid grid-cols-12 gap-8 px-8">
         {/* LEFT */}
         <div className="hidden md:block col-span-3">
-          <div className="sticky top-1/2 -translate-y-1/2 pl-12 space-y-3">
-            <h2 className={`${solway.className} text-2xl font-bold`}>
+          <div className="sticky top-1/2 -translate-y-1/2 pl-20 space-y-4">
+            <h2
+              className={`${solway.className} text-2xl font-bold leading-tight`}
+            >
               {activeWork.title}
             </h2>
 
@@ -144,7 +150,7 @@ export default function WorksSection({ works }: WorksSectionProps) {
                 key={i}
                 href={link.url}
                 target="_blank"
-                className={`${courier.className} flex items-center gap-2 text-xs hover:text-pink-400`}
+                className={`${courier.className} flex items-center gap-3 text-xs tracking-wide hover:text-pink-400`}
               >
                 {icon(link.type)}
                 {link.url.replace(/^https?:\/\//, "")}
@@ -154,7 +160,7 @@ export default function WorksSection({ works }: WorksSectionProps) {
         </div>
 
         {/* CENTER */}
-        <div className="col-span-12 md:col-span-6 flex flex-col gap-24 md:-mx-8">
+        <div className="col-span-12 md:col-span-6 flex flex-col gap-28 md:-mx-8">
           {works.map((work) => (
             <WorkMedia key={work.id} work={work} />
           ))}
@@ -162,10 +168,10 @@ export default function WorksSection({ works }: WorksSectionProps) {
 
         {/* RIGHT */}
         <div className="hidden md:block col-span-3">
-          <div className="sticky top-1/2 -translate-y-1/2 pr-12">
+          <div className="sticky top-1/2 -translate-y-1/2 pr-16">
             {activeWork.short_desc && (
               <p
-                className={`${courier.className} text-sm leading-relaxed max-w-[240px] ml-auto`}
+                className={`${courier.className} text-sm leading-relaxed max-w-[260px] ml-auto text-justify`}
                 style={{ color: "#FF00C3" }}
               >
                 {activeWork.short_desc}
@@ -176,7 +182,7 @@ export default function WorksSection({ works }: WorksSectionProps) {
       </div>
 
       {/* CTA */}
-      <div className="mt-28 text-center">
+      <div className="mt-32 text-center">
         <Link
           href="/works"
           className={`${courier.className} px-8 py-3 border border-white text-xs tracking-widest hover:bg-white hover:text-black transition`}
