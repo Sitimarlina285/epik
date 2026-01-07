@@ -1,54 +1,65 @@
 // src/components/AllWorksGrid.tsx
-'use client'
+"use client";
 
-import React, { useRef } from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { motion, useScroll, useTransform } from 'framer-motion'
-import { Globe, Instagram, Github, Linkedin, Twitter, ExternalLink } from 'lucide-react'
-import { Solway, Courier_Prime } from 'next/font/google'
+import React, { useRef } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { motion, useScroll, useTransform } from "framer-motion";
+import {
+  Globe,
+  Instagram,
+  Github,
+  Linkedin,
+  Twitter,
+  ExternalLink,
+} from "lucide-react";
+import { Solway, Courier_Prime } from "next/font/google";
 
-const solway = Solway({ subsets: ['latin'], weight: ['400', '700'] })
-const courier = Courier_Prime({ subsets: ['latin'], weight: ['400'] })
+const solway = Solway({ subsets: ["latin"], weight: ["400", "700"] });
+const courier = Courier_Prime({ subsets: ["latin"], weight: ["400"] });
 
 interface Work {
-  id: string
-  title: string
-  subtitle?: string
-  short_desc?: string
+  id: string;
+  title: string;
+  subtitle?: string;
+  short_desc?: string;
   media?: {
-    id: string
-    url: string
-    alt: string
-  } | null
+    id: string;
+    url: string;
+    alt: string;
+  } | null;
   social_links?: Array<{
-    type: string
-    icon?: string | null
-    url: string
-  }>
+    type: string;
+    icon?: string | null;
+    url: string;
+  }>;
   tags?: Array<{
-    id: string
-    name: string
-  }>
+    id: string;
+    name: string;
+  }>;
 }
 
 interface AllWorksGridProps {
-  works?: any[]
+  works?: any[];
 }
 
 function WorkItemImage({ work }: { work: Work }) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const videoRef = useRef<HTMLVideoElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ['start end', 'end start'],
-  })
+    offset: ["start end", "end start"],
+  });
 
-  const imageScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.7, 1, 0.7])
-  const imageOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.6, 1, 0.6])
+  const imageScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.7, 1, 0.7]);
+  const imageOpacity = useTransform(
+    scrollYProgress,
+    [0, 0.5, 1],
+    [0.6, 1, 0.6]
+  );
 
-  const isVideo = (url: string) => url?.match(/\.(mp4|webm|ogg)$/i)
+  const isVideo = (url: string) => url?.match(/\.(mp4|webm|ogg)$/i);
 
   return (
     <motion.div
@@ -88,54 +99,58 @@ function WorkItemImage({ work }: { work: Work }) {
         )}
       </div>
     </motion.div>
-  )
+  );
 }
 
 export default function AllWorksGrid({ works = [] }: AllWorksGridProps) {
-  const headerRef = useRef<HTMLDivElement>(null)
-  const sectionRef = useRef<HTMLDivElement>(null)
-  const [activeWorkIndex, setActiveWorkIndex] = React.useState(0)
+  const headerRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [activeWorkIndex, setActiveWorkIndex] = React.useState(0);
 
   const { scrollYProgress: headerProgress } = useScroll({
     target: headerRef,
-    offset: ['start end', 'end start'],
-  })
+    offset: ["start end", "end start"],
+  });
 
-  const headerOpacity = useTransform(headerProgress, [0, 0.2, 0.5], [0, 1, 1])
-  const headerY = useTransform(headerProgress, [0, 0.2], [40, 0])
+  const headerOpacity = useTransform(headerProgress, [0, 0.2, 0.5], [0, 1, 1]);
+  const headerY = useTransform(headerProgress, [0, 0.2], [40, 0]);
 
   const { scrollYProgress: sectionProgress } = useScroll({
     target: sectionRef,
-    offset: ['start center', 'end center'],
-  })
+    offset: ["start center", "end center"],
+  });
 
   React.useEffect(() => {
-    const unsubscribe = sectionProgress.on('change', (latest) => {
-      const totalWorks = works.length
-      const index = Math.floor(latest * (totalWorks + 0.5))
-      const clampedIndex = Math.max(0, Math.min(index, totalWorks - 1))
-      setActiveWorkIndex(clampedIndex)
-    })
-    return () => unsubscribe()
-  }, [sectionProgress, works.length])
+    const unsubscribe = sectionProgress.on("change", (latest) => {
+      const totalWorks = works.length;
+      const index = Math.floor(latest * (totalWorks + 0.5));
+      const clampedIndex = Math.max(0, Math.min(index, totalWorks - 1));
+      setActiveWorkIndex(clampedIndex);
+    });
+    return () => unsubscribe();
+  }, [sectionProgress, works.length]);
 
   if (!works || !Array.isArray(works)) {
     return (
       <section className="w-full min-h-screen bg-black text-white flex items-center justify-center">
-        <div className={`${courier.className} text-gray-400 text-lg`}>Loading works...</div>
+        <div className={`${courier.className} text-gray-400 text-lg`}>
+          Loading works...
+        </div>
       </section>
-    )
+    );
   }
 
   if (works.length === 0) {
     return (
       <section className="w-full min-h-screen bg-black text-white flex items-center justify-center">
-        <div className={`${courier.className} text-gray-400 text-lg`}>No works available yet.</div>
+        <div className={`${courier.className} text-gray-400 text-lg`}>
+          No works available yet.
+        </div>
       </section>
-    )
+    );
   }
 
-  const activeWork = works[activeWorkIndex]
+  const activeWork = works[activeWorkIndex];
 
   const getSocialIcon = (type: string) => {
     const icons = {
@@ -144,9 +159,11 @@ export default function AllWorksGrid({ works = [] }: AllWorksGridProps) {
       github: <Github className="w-4 h-4" />,
       linkedin: <Linkedin className="w-4 h-4" />,
       twitter: <Twitter className="w-4 h-4" />,
-    }
-    return icons[type as keyof typeof icons] || <ExternalLink className="w-4 h-4" />
-  }
+    };
+    return (
+      icons[type as keyof typeof icons] || <ExternalLink className="w-4 h-4" />
+    );
+  };
 
   return (
     <section
@@ -159,7 +176,9 @@ export default function AllWorksGrid({ works = [] }: AllWorksGridProps) {
         style={{ opacity: headerOpacity, y: headerY }}
         className="pt-16 pb-8 text-center"
       >
-        <h1 className={`${solway.className} text-4xl md:text-5xl font-bold`}> </h1>
+        <h1 className={`${solway.className} text-4xl md:text-5xl font-bold`}>
+          {" "}
+        </h1>
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 px-4 md:px-8 relative">
@@ -172,26 +191,31 @@ export default function AllWorksGrid({ works = [] }: AllWorksGridProps) {
               transition={{ duration: 0.3 }}
               className="flex flex-col gap-2"
             >
-              <h2 className={`${solway.className} text-2xl font-bold text-white`}>
+              <h2
+                className={`${solway.className} text-2xl font-bold text-white`}
+              >
                 {activeWork.title}
               </h2>
 
-              {activeWork.social_links && activeWork.social_links.length > 0 && (
-                <div className="mt-2 flex flex-col gap-1">
-                  {activeWork.social_links.map((link: any, idx: number) => (
-                    <a
-                      key={idx}
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`${courier.className} flex items-center gap-2 text-xs text-white hover:text-pink-400 transition-colors`}
-                    >
-                      {getSocialIcon(link.type)}
-                      <span className="text-xs">{link.url.replace(/^https?:\/\//, '')}</span>
-                    </a>
-                  ))}
-                </div>
-              )}
+              {activeWork.social_links &&
+                activeWork.social_links.length > 0 && (
+                  <div className="mt-2 flex flex-col gap-1">
+                    {activeWork.social_links.map((link: any, idx: number) => (
+                      <a
+                        key={idx}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`${courier.className} flex items-center gap-2 text-xs text-white hover:text-pink-400 transition-colors`}
+                      >
+                        {getSocialIcon(link.type)}
+                        <span className="text-xs">
+                          {link.url.replace(/^https?:\/\//, "")}
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                )}
             </motion.div>
           </div>
         </div>
@@ -216,7 +240,7 @@ export default function AllWorksGrid({ works = [] }: AllWorksGridProps) {
               {activeWork.short_desc && (
                 <p
                   className={`${courier.className} text-sm leading-relaxed line-clamp-6`}
-                  style={{ color: '#FF00C3' }}
+                  style={{ color: "#FF00C3" }}
                 >
                   {activeWork.short_desc}
                 </p>
@@ -226,5 +250,5 @@ export default function AllWorksGrid({ works = [] }: AllWorksGridProps) {
         </div>
       </div>
     </section>
-  )
+  );
 }
