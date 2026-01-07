@@ -1,238 +1,203 @@
-// src/components/WorkDetail.tsx
-'use client'
+"use client";
 
-import React from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import { Solway, Courier_Prime } from 'next/font/google'
+import React, { useRef, useState, useEffect } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import {
+  Globe,
+  Instagram,
+  Github,
+  Linkedin,
+  Twitter,
+  ExternalLink,
+} from "lucide-react";
+import { Solway, Courier_Prime } from "next/font/google";
 
-const solway = Solway({ subsets: ['latin'], weight: ['400', '700'] })
-const courier = Courier_Prime({ subsets: ['latin'], weight: ['400'] })
+const solway = Solway({ subsets: ["latin"], weight: ["400", "700"] });
+const courier = Courier_Prime({ subsets: ["latin"], weight: ["400"] });
 
-interface WorkDetailProps {
-  work: any
+interface SocialLink {
+  type: string;
+  url: string;
 }
 
-export default function WorkDetail({ work }: WorkDetailProps) {
-  const isVideo = (url: string) => url?.match(/\.(mp4|webm|ogg)$/i)
+interface Work {
+  id: string;
+  title: string;
+  short_desc?: string;
+  media?: {
+    id: string;
+    url: string;
+    alt?: string;
+  } | null;
+  social_links?: SocialLink[];
+}
 
-  // Parse lexical content to HTML
-  const parseLexicalToHTML = (content: any): string => {
-    if (!content) return ''
-    if (typeof content === 'string') {
-      try {
-        const parsed = JSON.parse(content)
-        if (parsed.root?.children) {
-          return parsed.root.children
-            .map((node: any) => {
-              if (node.children) {
-                const text = node.children.map((child: any) => child.text || '').join('')
-                return `<p>${text}</p>`
-              }
-              return ''
-            })
-            .join('')
-        }
-      } catch {
-        return content
-      }
-    }
-    return ''
-  }
+interface WorksSectionProps {
+  works: Work[];
+}
+
+/* =======================
+   IMAGE / VIDEO
+======================= */
+function WorkItemImage({ work }: { work: Work }) {
+  const isVideo = (url: string) => /\.(mp4|webm|ogg)$/i.test(url);
 
   return (
-    <div className="min-h-screen bg-[#000000] text-white">
-      {/* Header - Large Image */}
-      {work.media && (
-        <div className="max-w-[1400px] mx-auto px-8 pt-8">
-          <div className="w-full h-[700px] relative">
-            {isVideo(work.media.url) ? (
-              <video
-                className="w-full h-full object-cover"
-                loop
-                muted
-                playsInline
-                autoPlay
-                controls
-              >
-                <source src={work.media.url} type="video/mp4" />
-              </video>
-            ) : (
-              <Image src={work.media.url} alt={work.title} fill className="object-cover" />
-            )}
+    <motion.div
+      initial={{ opacity: 0.6, scale: 0.75 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: false, amount: 0.3 }}
+      transition={{ duration: 0.6 }}
+      className="flex justify-center"
+    >
+      <div className="relative w-[672px] h-[378px] bg-gray-800 overflow-hidden">
+        {work.media?.url ? (
+          isVideo(work.media.url) ? (
+            <video
+              className="w-full h-full object-cover"
+              autoPlay
+              loop
+              muted
+              playsInline
+            >
+              <source src={work.media.url} />
+            </video>
+          ) : (
+            <img
+              src={work.media.url}
+              alt={work.media.alt || work.title}
+              className="w-full h-full object-cover"
+            />
+          )
+        ) : (
+          <div
+            className={`${courier.className} w-full h-full flex items-center justify-center text-gray-500`}
+          >
+            No media
           </div>
-        </div>
-      )}
+        )}
+      </div>
+    </motion.div>
+  );
+}
 
-      {/* Main Content - 3 Columns Layout */}
-      <div className="max-w-[1400px] mx-auto px-8 py-20">
-        <div className="grid grid-cols-12 gap-8">
-          {/* Left Column - Labels */}
-          <div className="col-span-2 space-y-30">
-            {/* Client Label - sejajar dengan Title */}
-            <div>
-              <h3 className={`${courier.className} text-gray-500 text-xs uppercase tracking-wider`}>
-                Client
-              </h3>
-            </div>
+/* =======================
+   MAIN SECTION
+======================= */
+export default function WorksSection({ works }: WorksSectionProps) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
-            {/* Overview Label - sejajar dengan content */}
-            {work.content && (
-              <div>
-                <h3
-                  className={`${courier.className} text-gray-500 text-xs uppercase tracking-wider`}
-                >
-                  Overview
-                </h3>
-              </div>
-            )}
-          </div>
+  useEffect(() => {
+    if (!sectionRef.current) return;
 
-          {/* Center Column - Title & Content */}
-          <div className="col-span-5 space-y-16">
-            {/* Large Title - sejajar dengan Client */}
-            <div>
-              <h1
-                className={`${solway.className} text-[60px] leading-none font-normal tracking-tight`}
-              >
-                {work.title}
-              </h1>
-            </div>
+    const onScroll = () => {
+      const rect = sectionRef.current!.getBoundingClientRect();
+      const progress = Math.min(
+        1,
+        Math.max(0, -rect.top / (rect.height - window.innerHeight))
+      );
+      const index = Math.floor(progress * works.length);
+      setActiveIndex(Math.min(index, works.length - 1));
+    };
 
-            {/* Short Description - sejajar dengan Overview */}
-            {work.short_desc && (
-              <div>
-                <div className={`${courier.className} text-white text-sm leading-relaxed`}>
-                  {work.short_desc.split('\n\n').map((para: string, idx: number) => (
-                    <p key={idx} className="mb-4">
-                      {para}
-                    </p>
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [works.length]);
+
+  if (!works.length) return null;
+
+  const activeWork = works[activeIndex];
+
+  const getIcon = (type: string) =>
+    ({
+      website: <Globe size={14} />,
+      instagram: <Instagram size={14} />,
+      github: <Github size={14} />,
+      linkedin: <Linkedin size={14} />,
+      twitter: <Twitter size={14} />,
+    })[type] || <ExternalLink size={14} />;
+
+  return (
+    <section
+      ref={sectionRef}
+      id="works"
+      className="w-full min-h-[250vh] bg-black text-white"
+    >
+      <div className="pt-20 pb-12 text-center">
+        <h1 className={`${solway.className} text-4xl font-bold`}>Our Works</h1>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 px-6 md:px-12">
+        {/* ========== LEFT ========== */}
+        <div className="hidden md:block md:col-span-3">
+          <div className="sticky top-1/2 -translate-y-1/2 pl-12 pr-4">
+            <motion.div
+              key={`left-${activeIndex}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="space-y-4"
+            >
+              <h2 className={`${solway.className} text-2xl font-bold`}>
+                {activeWork.title}
+              </h2>
+
+              {activeWork.social_links && (
+                <div className="flex flex-col gap-2">
+                  {activeWork.social_links.map((link, i) => (
+                    <a
+                      key={i}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${courier.className} flex items-center gap-2 text-xs hover:text-pink-400`}
+                    >
+                      {getIcon(link.type)}
+                      {link.url.replace(/^https?:\/\//, "")}
+                    </a>
                   ))}
                 </div>
-              </div>
-            )}
-
-            {work.long_desc && (
-              <div>
-                <div
-                  className={`${courier.className} text-white text-sm leading-relaxed prose prose-invert prose-sm max-w-none`}
-                  dangerouslySetInnerHTML={{ __html: parseLexicalToHTML(work.long_desc) }}
-                />
-              </div>
-            )}
-
-            {/* Content with Stats/Info */}
-            {work.content && (
-              <div>
-                <div
-                  className={`${courier.className} text-gray-300 text-base leading-relaxed prose prose-invert prose-lg max-w-none`}
-                  dangerouslySetInnerHTML={{ __html: parseLexicalToHTML(work.content) }}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Right Column - Details */}
-          <div className="col-span-5">
-            <div className="grid grid-cols-2 gap-8">
-              {/* Left side of right column */}
-              <div className="space-y-12">
-                {work.subtitle && (
-                  <div>
-                    <h3
-                      className={`${courier.className} text-gray-500 text-xs mb-3 uppercase tracking-wider`}
-                    >
-                      Title
-                    </h3>
-                    <p className={`${courier.className} text-white text-base`}>{work.subtitle}</p>
-                  </div>
-                )}
-
-                {work.tags && Array.isArray(work.tags) && work.tags.length > 0 && (
-                  <div>
-                    <h3
-                      className={`${courier.className} text-gray-500 text-xs mb-3 uppercase tracking-wider`}
-                    >
-                      Type
-                    </h3>
-                    <p className={`${courier.className} text-white text-base`}>
-                      {work.tags
-                        .map((tag: any) => (typeof tag === 'object' ? tag.name : tag))
-                        .join(', ')}
-                    </p>
-                  </div>
-                )}
-
-                {work.social_links &&
-                  Array.isArray(work.social_links) &&
-                  work.social_links.length > 0 && (
-                    <div>
-                      <h3
-                        className={`${courier.className} text-gray-500 text-xs mb-3 uppercase tracking-wider`}
-                      >
-                        Deliverables
-                      </h3>
-                      <div className="space-y-2">
-                        {work.social_links.map((link: any, idx: number) => (
-                          <p key={idx} className={`${courier.className} text-white text-base`}>
-                            {typeof link === 'object' && link?.url
-                              ? link.url.replace(/^https?:\/\//, '')
-                              : 'Link'}
-                          </p>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-              </div>
-
-              {/* Right side of right column */}
-              <div className="space-y-12">
-                {work.status && (
-                  <div>
-                    <h3
-                      className={`${courier.className} text-gray-500 text-xs mb-3 uppercase tracking-wider`}
-                    >
-                      Status
-                    </h3>
-                    <p className={`${courier.className} text-white text-base capitalize`}>
-                      {work.status}
-                    </p>
-                  </div>
-                )}
-
-                {work.createdAt && (
-                  <div>
-                    <h3
-                      className={`${courier.className} text-gray-500 text-xs mb-3 uppercase tracking-wider`}
-                    >
-                      Created
-                    </h3>
-                    <p className={`${courier.className} text-white text-sm`}>
-                      {new Date(work.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
+              )}
+            </motion.div>
           </div>
         </div>
-      </div>
 
-      {/* Footer Navigation */}
-      <div className="border-t border-gray-800 mt-20">
-        <div className="max-w-[1400px] mx-auto px-8 py-8">
+        {/* ========== CENTER ========== */}
+        <div className="md:col-span-6 flex flex-col gap-24 py-12 md:-ml-12">
+          {works.map((work) => (
+            <WorkItemImage key={work.id} work={work} />
+          ))}
+
           <Link
             href="/works"
-            className={`${courier.className} text-gray-500 hover:text-white transition-colors text-sm`}
+            className={`${courier.className} mx-auto mt-8 px-8 py-3 border-2 border-white hover:bg-white hover:text-black transition`}
           >
-            ← All Works
+            ALL WORKS
           </Link>
         </div>
+
+        {/* ========== RIGHT ========== */}
+        <div className="hidden md:block md:col-span-3">
+          <div className="sticky top-1/2 -translate-y-1/2 -ml-6 max-w-[220px]">
+            <motion.div
+              key={`right-${activeIndex}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              {activeWork.short_desc && (
+                <p
+                  className={`${courier.className} text-sm leading-relaxed`}
+                  style={{ color: "#FF00C3" }}
+                >
+                  {activeWork.short_desc}
+                </p>
+              )}
+            </motion.div>
+          </div>
+        </div>
       </div>
-    </div>
-  )
+    </section>
+  );
 }
