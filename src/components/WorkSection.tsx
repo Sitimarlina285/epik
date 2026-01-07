@@ -61,7 +61,7 @@ function WorkItemImage({ work }: { work: Work }) {
       viewport={{ once: false, amount: 0.3 }}
       transition={{ duration: 0.6 }}
     >
-      <div className="bg-gray-800 overflow-hidden w-full max-w-2xl aspect-video flex items-center justify-center relative mx-auto">
+      <div className="bg-gray-800 overflow-hidden w-full max-w-[672px] aspect-video flex items-center justify-center relative mx-auto">
         {work.media?.url ? (
           isVideo(work.media.url) ? (
             <video
